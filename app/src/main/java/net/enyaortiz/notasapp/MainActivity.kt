@@ -4,44 +4,56 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import net.enyaortiz.notasapp.ui.screens.AddNoteScreen
+import net.enyaortiz.notasapp.ui.screens.HomeScreen
 import net.enyaortiz.notasapp.ui.theme.NotasAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge() // Habilita el borde a borde de la pantalla
         setContent {
             NotasAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                NotasApp() // Llamamos a la función de navegación
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun NotasApp() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NotasAppTheme {
-        Greeting("Android")
+    // Definimos las pantallas dentro del NavHost
+    NavHost(navController = navController, startDestination = "home") {
+        // Pantalla principal
+        composable("home") {
+            HomeScreen(
+                onAddNoteClick = {
+                    // Navegar a la pantalla de agregar nota
+                    navController.navigate("add_note")
+                }
+            )
+        }
+
+        // Pantalla para agregar una nota
+        composable("add_note") {
+            AddNoteScreen(
+                onSaveNote = { title, description ->
+                    // Aquí puedes procesar el guardado de la nota
+                    navController.popBackStack() // Regresa a la pantalla principal
+                },
+                onBack = {
+                    navController.popBackStack() // Regresa a la pantalla anterior
+                }
+            )
+        }
     }
 }
